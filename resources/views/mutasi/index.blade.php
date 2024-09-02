@@ -51,11 +51,12 @@ $(document).ready(function() {
         dom: 'Bfrtip',
         buttons: [
             {
-                extend: 'pdfHtml5',
-                text: 'Download PDF',
-                className: 'btn btn-danger',
+                extend: 'excelHtml5',
+                text: 'Download Excel',
+                className: 'btn btn-success',
+                filename: 'LATHAFANNY-IDGROW', 
                 exportOptions: {
-                    columns: ':visible:not(:last-child)'
+                    columns: ':visible:not(:last-child)' 
                 }
             },
 
