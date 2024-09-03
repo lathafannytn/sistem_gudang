@@ -6,7 +6,10 @@ use App\Http\Controllers\BarangController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\LokasiController;
 use App\Http\Controllers\MutasiController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,14 +22,32 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 |
 */
 
-//authentication dengan Bearer Token
-//API.PHP
+//email verification
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
 
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('/');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('status', 'verification-link-sent');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+// Authentication routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 });
 
+// Route Logout
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+
+// Group Route dengan Middleware Auth untuk Proteksi
 Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
         return view('dashboard');
@@ -35,10 +56,11 @@ Route::middleware(['auth'])->group(function () {
     // Route Home dan Profile
     Route::get('/home', [ProfileController::class, 'index'])->name('home');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-
-    // Route Logout
-    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');
+    // Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Routes Barang
     Route::prefix('barang')->name('barang.')->group(function () {
@@ -83,4 +105,16 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('{id}', [MutasiController::class, 'destroy'])->name('destroy');
         Route::get('table-data', [MutasiController::class, 'tableDataAdmin'])->name('tableDataAdmin');
     });
+
+   // Routes User
+    Route::prefix('user')->name('user.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('create', [UserController::class, 'create'])->name('create');
+        Route::post('/', [UserController::class, 'store'])->name('store');
+        Route::get('{user}/edit', [UserController::class, 'edit'])->name('edit');
+        Route::put('{user}', [UserController::class, 'update'])->name('update');
+        Route::get('table-data', [UserController::class, 'tableDataAdmin'])->name('tableDataAdmin');
+    });
+
+
 });

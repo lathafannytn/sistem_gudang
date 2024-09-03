@@ -55,7 +55,6 @@
             </ul>
         </li>
 
-
         <!-- Mutasi -->
         <li class="menu-item {{ request()->is('mutasi*') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -70,5 +69,32 @@
                 </li>
             </ul>
         </li>
+
+        <!-- User -->
+        <li class="menu-item {{ request()->is('profile*') ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-user"></i> 
+                <div data-i18n="Layouts">User</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{ request()->is('profile') ? 'active' : '' }}">
+                    <a href="{{ route('user.index') }}" class="menu-link">
+                        <div data-i18n="Without menu">Data User</div>
+                    </a>
+                </li>
+                
+                <!-- Logout -->
+                <li class="menu-item">
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <a href="#" class="menu-link" onclick="event.preventDefault(); this.closest('form').submit();">
+                            <i class="menu-icon tf-icons bx bx-log-out"></i>
+                            <div data-i18n="Without menu">Logout</div>
+                        </a>
+                    </form>
+                </li>
+            </ul>
+        </li>
+
     </ul>
 </aside>
